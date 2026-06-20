@@ -1,4 +1,5 @@
 import { GraduationCap, School } from "lucide-react";
+import * as z from "zod";
 
 export const USER_ROLES = {
     STUDENT: "student",
@@ -55,15 +56,35 @@ export const ALLOWED_TYPES = [
     "image/webp",
 ];
 
-export const CLOUDINARY_UPLOAD_URL = import.meta.env.VITE_CLOUDINARY_UPLOAD_URL;
-export const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-export const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+const envSchema = z.object({
+    VITE_CLOUDINARY_UPLOAD_URL: z.string().url("VITE_CLOUDINARY_UPLOAD_URL must be a valid URL"),
+    VITE_CLOUDINARY_CLOUD_NAME: z.string().min(1, "VITE_CLOUDINARY_CLOUD_NAME is required"),
+    VITE_CLOUDINARY_UPLOAD_PRESET: z.string().min(1, "VITE_CLOUDINARY_UPLOAD_PRESET is required"),
+    VITE_BACKEND_BASE_URL: z.string().url("VITE_BACKEND_BASE_URL must be a valid URL"),
+    VITE_API_URL: z.string().url("VITE_API_URL must be a valid URL").optional(),
+    VITE_ACCESS_TOKEN_KEY: z.string().min(1, "VITE_ACCESS_TOKEN_KEY is required").optional(),
+    VITE_REFRESH_TOKEN_KEY: z.string().min(1, "VITE_REFRESH_TOKEN_KEY is required").optional(),
+});
 
-export const BASE_URL = import.meta.env.VITE_API_URL;
-export const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY;
-export const REFRESH_TOKEN_KEY = import.meta.env.VITE_REFRESH_TOKEN_KEY;
+const parsedEnv = envSchema.safeParse(import.meta.env);
+
+if (!parsedEnv.success) {
+    const issues = parsedEnv.error.issues
+        .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)
+        .join("\n");
+    throw new Error(`Invalid environment variables:\n${issues}`);
+}
+
+const env = parsedEnv.data;
+
+export const CLOUDINARY_UPLOAD_URL = env.VITE_CLOUDINARY_UPLOAD_URL;
+export const CLOUDINARY_CLOUD_NAME = env.VITE_CLOUDINARY_CLOUD_NAME;
+export const BACKEND_BASE_URL = env.VITE_BACKEND_BASE_URL;
+
+export const BASE_URL = env.VITE_API_URL;
+export const ACCESS_TOKEN_KEY = env.VITE_ACCESS_TOKEN_KEY;
+export const REFRESH_TOKEN_KEY = env.VITE_REFRESH_TOKEN_KEY;
 
 export const REFRESH_TOKEN_URL = `${BASE_URL}/refresh-token`;
 
-export const CLOUDINARY_UPLOAD_PRESET = import.meta.env
-    .VITE_CLOUDINARY_UPLOAD_PRESET;
+export const CLOUDINARY_UPLOAD_PRESET = env.VITE_CLOUDINARY_UPLOAD_PRESET;
