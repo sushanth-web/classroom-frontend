@@ -44,6 +44,7 @@ A modern **school / classroom management dashboard** for administering departmen
 | **Icons** | [Lucide](https://lucide.dev) |
 | **Notifications** | [Sonner](https://sonner.emilkowal.ski/) |
 | **Deployment** | [Vercel](https://vercel.com) |
+| **Monitoring** | [Site 24*7](https://www.site24x7.in/) |
 
 ---
 
