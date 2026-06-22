@@ -81,6 +81,32 @@ const options: CreateDataProviderOptions = {
             return json.data ?? {};
         },
     },
+
+    update: {
+        getEndpoint: ({ resource, id }) => `${resource}/${id}`,
+
+        // Backend exposes PUT (not the @refinedev/rest default PATCH).
+        getRequestMethod: () => "put",
+
+        buildBodyParams: async ({ variables }) => variables,
+
+        mapResponse: async (response) => {
+            const json: GetOneResponse = await response.json();
+            return json.data ?? {};
+        },
+    },
+
+    deleteOne: {
+        getEndpoint: ({ resource, id }) => `${resource}/${id}`,
+
+        mapResponse: async (response) => {
+            // Surface backend constraint messages (e.g. 409) to the notification layer.
+            const json = (await response
+                .json()
+                .catch(() => ({}))) as GetOneResponse;
+            return json.data ?? {};
+        },
+    },
 };
 
 const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);

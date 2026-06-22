@@ -1,10 +1,64 @@
+export type Department = {
+    id: number;
+    code: string;
+    name: string;
+    description?: string | null;
+    totalSubjects?: number;
+    createdAt?: string;
+    updatedAt?: string;
+    totals?: {
+        subjects: number;
+        classes: number;
+        enrolledStudents: number;
+    };
+};
+
 export type Subject = {
     id: number;
     name: string;
     code: string;
-    description: string;
-    department: string;
+    description?: string | null;
+    departmentId: number;
+    department?: Department | null;
     createdAt?: string;
+    updatedAt?: string;
+    totals?: {
+        classes: number;
+    };
+};
+
+export type Enrollment = {
+    id: number;
+    studentId: string;
+    classId: number;
+    createdAt?: string;
+    class?: ClassDetails;
+    subject?: Subject;
+    department?: Department;
+    teacher?: User;
+};
+
+export type StatsOverview = {
+    users: number;
+    teachers: number;
+    admins: number;
+    subjects: number;
+    departments: number;
+    classes: number;
+};
+
+export type ChartStats = {
+    usersByRole: { role: string; total: number }[];
+    subjectsByDepartment: {
+        departmentId: number;
+        departmentName: string;
+        totalSubjects: number;
+    }[];
+    classesBySubject: {
+        subjectId: number;
+        subjectName: string;
+        totalClasses: number;
+    }[];
 };
 
 export type ListResponse<T = unknown> = {
@@ -89,20 +143,14 @@ export type Schedule = {
     endTime: string;
 };
 
-export type Department = {
-    id: number;
-    name: string;
-    description: string;
-};
-
 export type ClassDetails = {
     id: number;
     name: string;
     description: string;
-    status: "active" | "inactive";
+    status: "active" | "inactive" | "archived";
     capacity: number;
-    courseCode: string;
-    courseName: string;
+    courseCode?: string;
+    courseName?: string;
     bannerUrl?: string;
     bannerCldPubId?: string;
     subject?: Subject;
@@ -110,6 +158,8 @@ export type ClassDetails = {
     department?: Department;
     schedules: Schedule[];
     inviteCode?: string;
+    enrolledCount?: number;
+    availableSpots?: number;
 };
 
 export type SignUpPayload = {

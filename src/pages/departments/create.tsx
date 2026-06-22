@@ -1,11 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "@refinedev/react-hook-form";
-import {
-    useBack,
-    useList,
-    type BaseRecord,
-    type HttpError,
-} from "@refinedev/core";
+import { useBack, type BaseRecord, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import * as z from "zod";
 
@@ -24,37 +19,31 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { subjectFormSchema } from "@/lib/schema";
-import type { Department } from "@/types";
+import { departmentSchema } from "@/lib/schema";
 
-type SubjectFormValues = z.infer<typeof subjectFormSchema>;
+type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
-type SubjectFormProps = {
+type DepartmentFormProps = {
     action?: "create" | "edit";
     id?: string;
 };
 
-export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
+export const DepartmentForm = ({
+    action = "create",
+    id,
+}: DepartmentFormProps) => {
     const back = useBack();
 
-    const form = useForm<BaseRecord, HttpError, SubjectFormValues>({
-        resolver: zodResolver(subjectFormSchema),
+    const form = useForm<BaseRecord, HttpError, DepartmentFormValues>({
+        resolver: zodResolver(departmentSchema),
         refineCoreProps: {
-            resource: "subjects",
+            resource: "departments",
             action,
             id,
         },
         defaultValues: {
-            departmentId: 0,
-            name: "",
             code: "",
+            name: "",
             description: "",
         },
     });
@@ -66,21 +55,11 @@ export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
         control,
     } = form;
 
-    const { query: departmentsQuery } = useList<Department>({
-        resource: "departments",
-        pagination: {
-            pageSize: 100,
-        },
-    });
-
-    const departments = departmentsQuery.data?.data ?? [];
-    const departmentsLoading = departmentsQuery.isLoading;
-
-    const onSubmit = async (values: SubjectFormValues) => {
+    const onSubmit = async (values: DepartmentFormValues) => {
         try {
             await onFinish(values);
         } catch (error) {
-            console.error("Error saving subject:", error);
+            console.error("Error saving department:", error);
         }
     };
 
@@ -91,12 +70,12 @@ export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
             <Breadcrumb />
 
             <h1 className="page-title">
-                {isEdit ? "Edit Subject" : "Create a Subject"}
+                {isEdit ? "Edit Department" : "Create a Department"}
             </h1>
             <div className="intro-row">
                 <p>
                     Provide the required information below to{" "}
-                    {isEdit ? "update" : "add"} a subject.
+                    {isEdit ? "update" : "add"} a department.
                 </p>
                 <Button onClick={() => back()}>Go Back</Button>
             </div>
@@ -121,38 +100,16 @@ export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
                             >
                                 <FormField
                                     control={control}
-                                    name="departmentId"
+                                    name="code"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>
-                                                Department{" "}
+                                                Department Code{" "}
                                                 <span className="text-orange-600">*</span>
                                             </FormLabel>
-                                            <Select
-                                                onValueChange={(value) =>
-                                                    field.onChange(Number(value))
-                                                }
-                                                value={
-                                                    field.value ? String(field.value) : ""
-                                                }
-                                                disabled={departmentsLoading}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Select a department" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {departments.map((department) => (
-                                                        <SelectItem
-                                                            key={department.id}
-                                                            value={String(department.id)}
-                                                        >
-                                                            {department.name} ({department.code})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <FormControl>
+                                                <Input placeholder="CS" {...field} />
+                                            </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -164,31 +121,11 @@ export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>
-                                                Subject Name{" "}
+                                                Department Name{" "}
                                                 <span className="text-orange-600">*</span>
                                             </FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    placeholder="Intro to Programming"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={control}
-                                    name="code"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                Subject Code{" "}
-                                                <span className="text-orange-600">*</span>
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="CS101" {...field} />
+                                                <Input placeholder="Computer Science" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -206,7 +143,7 @@ export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
                                             </FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="Describe the subject focus..."
+                                                    placeholder="Describe the department focus..."
                                                     className="min-h-28"
                                                     {...field}
                                                 />
@@ -232,7 +169,7 @@ export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
                                     ) : isEdit ? (
                                         "Save Changes"
                                     ) : (
-                                        "Create Subject"
+                                        "Create Department"
                                     )}
                                 </Button>
                             </form>
@@ -244,8 +181,8 @@ export const SubjectForm = ({ action = "create", id }: SubjectFormProps) => {
     );
 };
 
-const SubjectsCreate = () => {
-    return <SubjectForm action="create" />;
+const DepartmentsCreate = () => {
+    return <DepartmentForm action="create" />;
 };
 
-export default SubjectsCreate;
+export default DepartmentsCreate;
